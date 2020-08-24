@@ -8,28 +8,28 @@ class Proj_1():
         """
         Dfinições das variáveis iniciais.
         """
-        self.numero_polos = 4
+        self.Rendumero_polos = 4
         self.freq = 60  # [Hz]
-        self.we = self.freq  # daonde veio isso??
+        self.we = 60  # daonde veio isso??
         self.potencia = 2 * 745.7  # Unidade de medida?
 
         self.tensao = 220  # [V]
-        self.tensao_6_step = (220 * sqrt(2))/pi
-        self.tensao_PWM = (220 * sqrt(2))/pi * 0.6
+        self.tensao_6_step = round((220 * sqrt(2)/pi), 4)
+        self.tensao_PWM = round((220 * sqrt(2))/(pi * 0.6), 4) # deveria ser uma divisão OU multiplicacao?
 
         self.rot_nominal = 1720  # [rpm]
         self.ws = 1800  # daonde veio isso??
 
         self.mom_inercia = 0.018  # [kgm²]
         self.coef_atr_visc = 0.0018  # Coeficiente atrito viscoso, [Nms]
-        self.r1 = self.rs = 4.08  # [Omega]
-        self.r2 = self.rr = 4.87  # [Omega]
+        self.r1 = 4.08 # [Omega]
+        self.r2 = 4.87 # [Omega]
+        self.rs = 4.08
+        self.rr = 4.87
 
-        self.Lm = 315 * (10 ** -3)  # [H]
-        self.Lls = 10.4 * (10 ** -3)  # [H]
-        self.Llr = 18.5 * (10 ** -3)  # [H]
-
-        print(self.tensao_6_step, self.tensao_PWM)
+        self.Lm = 315 * (10 ** -3) # [H]
+        self.Lls = 10.4 * (10 ** -3) # [H]
+        self.Llr = 18.5 * (10 ** -3) # [H]
 
         # Vetores
         self.Te = []
@@ -73,9 +73,9 @@ class Proj_1():
         self.cos_phi6 = []
         self.cos_phip = []
 
-        self.n = []
-        self.n6 = []
-        self.np = []
+        self.Rend = []
+        self.Rend6 = []
+        self.Rendp = []
 
     #def get_values(self):
 
@@ -100,11 +100,11 @@ class Proj_1():
         s_max = round(((self.tensao ** 2) * self.r2) / (self.we * (x12 ** 2) * Tmax), 4)
 
         # Inicializando os vetores
-        array = arange(start=1, stop=0.00001, step=-0.01)
+        array = arange(start=1, stop=0.00001, step=-0.005)
         i = 0
 
         for step in array:
-            # Torque Elétrico
+            # Torque Elétrico # certo
             self.Te.append(self.calc_Electric_Torque(self.tensao, step, x12)) # parece certo
             self.Te6.append(self.calc_Electric_Torque(self.tensao_6_step, step, x12))
             self.Tep.append(self.calc_Electric_Torque(self.tensao_PWM, step, x12)) # ta errado
@@ -112,55 +112,55 @@ class Proj_1():
             # RPM
             self.rpm.append(self.calc_Rpm(step)) #deve estar certo
 
-            # Potência Mecânica
+            # Potência Mecânica # certo
             self.Pmec.append(self.calc_Mechanical_Power(self.Te[i], step))
             self.Pmec6.append(self.calc_Mechanical_Power(self.Te6[i], step))
             self.Pmecp.append(self.calc_Mechanical_Power(self.Tep[i], step))
 
-            # Corrente 1
+            # Corrente 1 # provavel que esteja certo
             self.I1.append(self.calc_Current_1(self.tensao, step, x12))
             self.I16.append(self.calc_Current_1(self.tensao_6_step, step, x12))
             self.I1p.append(self.calc_Current_1(self.tensao_PWM, step, x12))
 
-            # Corrente 2
+            # Corrente 2 # provavel que esteja certo
             self.I2.append(self.calc_Current_2(self.Pmec[i], step))
             self.I26.append(self.calc_Current_2(self.Pmec6[i], step))
             self.I2p.append(self.calc_Current_2(self.Pmecp[i], step))
 
-            # Potência Transferida do Entreferro
+            # Potência Transferida do Entreferro # provavel que esteja certo
             self.Pg.append(self.calc_Tranferred_Power_from_AirGap(self.I2[i], step))
             self.Pg6.append(self.calc_Tranferred_Power_from_AirGap(self.I26[i], step))
             self.Pgp.append(self.calc_Tranferred_Power_from_AirGap(self.I2p[i], step))
 
-            # Perdas no Rotor
+            # Perdas no Rotor # parece certo
             self.Pr.append(self.calc_Rotor_Losses(self.Pg[i], step))
             self.Pr6.append(self.calc_Rotor_Losses(self.Pg6[i], step))
             self.Prp.append(self.calc_Rotor_Losses(self.Pgp[i], step))
 
-            # Potência no Estator
+            # Potência no Estator # parece certo
             self.Pest.append(self.calc_Stator_Power(self.I1[i]))
             self.Pest6.append(self.calc_Stator_Power(self.I16[i]))
             self.Pestp.append(self.calc_Stator_Power(self.I1p[i]))
 
-            # Potência no Eixo
+            # Potência no Eixo # parece certo
             self.Pe.append(self.calc_Shaft_Power(self.Pg[i], self.Pr[i], step))
             self.Pe6.append(self.calc_Shaft_Power(self.Pg6[i], self.Pr6[i], step))
             self.Pep.append(self.calc_Shaft_Power(self.Pgp[i], self.Prp[i], step))
 
             # Potência de Entrada
-            self.Pin.append(self.calc_Input_Power(self.Pg[i], self.Pest[i]))
-            self.Pin6.append(self.calc_Input_Power(self.Pg6[i], self.Pest6[i]))
-            self.Pinp.append(self.calc_Input_Power(self.Pgp[i], self.Pestp[i]))
+            self.Pin.append(self.Pg[i] + self.Pest[i]) # parece certa
+            self.Pin6.append(self.Pg6[i] + self.Pest6[i]) # parece certa
+            self.Pinp.append(self.Pgp[i] + self.Pestp[i]) ## essa que ta errada
 
             # Cosseno Phi
-            self.cos_phi.append(self.calc_Cos_Phi(V1, self.I1[i]))
-            self.cos_phi6.append(self.calc_Cos_Phi(V16, self.I16[i]))
-            self.cos_phip.append(self.calc_Cos_Phi(V1p, self.I1p[i]))
+            self.cos_phi.append(V1/self.I1[i])
+            self.cos_phi6.append(V16/self.I16[i])
+            self.cos_phip.append(V1p/self.I1p[i])
 
             # Rendimento
-            self.n.append(self.calc_Yield(self.Pin[i], self.Pr[i], self.Pe[i]))
-            self.n6.append(self.calc_Yield(self.Pin6[i], self.Pr6[i], self.Pe6[i]))
-            self.np.append(self.calc_Yield(self.Pinp[i], self.Prp[i], self.Pep[i]))
+            self.Rend.append(self.calc_Yield(self.Pin[i], self.Pr[i], self.Pest[i]))
+            self.Rend6.append(self.calc_Yield(self.Pin6[i], self.Pr6[i], self.Pest6[i]))
+            self.Rendp.append(self.calc_Yield(self.Pinp[i], self.Prp[i], self.Pestp[i]))
 
             i += 1
 
@@ -170,8 +170,9 @@ class Proj_1():
         """
         Cria os plots.
         """
-        # Torque Elétrico
+        # Torque Elétrico ## VEIO CERTO
         plt.figure(1)
+        #plt.plot(self.rpm, self.Te, 'g', label='Normal')
         plt.plot(self.rpm, self.Te6, 'r', label='Six-step')
         plt.plot(self.rpm, self.Tep, 'b', label='PWM')
         plt.xlabel("rpm")
@@ -181,15 +182,17 @@ class Proj_1():
 
         # Potência Elétrica ## VEIO ERRADO
         plt.figure(2)
+        #plt.plot(self.rpm, self.Pin, 'g', label='Normal')
         plt.plot(self.rpm, self.Pin6, 'r', label='Six-step')
         plt.plot(self.rpm, self.Pinp, 'b', label='PWM')
         plt.xlabel("rpm")
         plt.ylabel("Pin")
-        plt.title("Potência elétrica x rpm")
+        plt.title("Potência elétrica entrada x rpm")
         plt.legend()
 
-        # Potência Mecânica ## VEIO ERRADO
+        # Potência Mecânica ## VEIO CERTO
         plt.figure(3)
+        #plt.plot(self.rpm, self.Pmec, 'g', label='Normal')
         plt.plot(self.rpm, self.Pmec6, 'r', label='Six-step')
         plt.plot(self.rpm, self.Pmecp, 'b', label='PWM')
         plt.xlabel("rpm")
@@ -197,23 +200,24 @@ class Proj_1():
         plt.title("Potência mecânica x rpm")
         plt.legend()
 
-        # # Rendimento
-        # plt.figure(4)
-        # plt.plot(self.rpm, self.n6, 'r', label='Six-step')
-        # plt.plot(self.rpm, self.np, 'b', label='PWM')
-        # plt.xlabel("rpm")
-        # plt.ylabel("Rendimento")
-        # plt.title("Rendimento x rpm")
-        # plt.legend()
+        # Rendimento # OS 3 GRAFICOS DERAM IGUAIS, TEM ERRO
+        plt.figure(4)
+        plt.plot(self.rpm, self.Rend, 'g', label='Normal')
+        plt.plot(self.rpm, self.Rend6, 'r', label='Six-step')
+        plt.plot(self.rpm, self.Rendp, 'b', label='PWM')
+        plt.xlabel("rpm")
+        plt.ylabel("Rendimento")
+        plt.title("Rendimento x rpm")
+        plt.legend()
 
-        # # Rendimento
-        # plt.figure(5)
-        # plt.plot(self.rpm, self.cos_phi6, 'r', label='Six-step')
-        # plt.plot(self.rpm, self.cos_phip, 'b', label='PWM')
-        # plt.xlabel("rpm")
-        # plt.ylabel("cos_phi")
-        # plt.title("Cos(\phi)")
-        # plt.legend()
+        # Cos Phi # correto
+        plt.figure(5)
+        plt.plot(self.rpm, self.cos_phi6, 'r', label='Six-step')
+        plt.plot(self.rpm, self.cos_phip, 'b', label='PWM')
+        plt.xlabel("rpm")
+        plt.ylabel("cos_phi")
+        plt.title("Cos(\phi)")
+        plt.legend()
 
         plt.show()
 
@@ -235,7 +239,7 @@ class Proj_1():
         """
         num = ((input_voltage ** 2) * self.r2)
         den = (step * self.we * ((x12 ** 2) + (self.r2/step) ** 2))
-        return num/den
+        return round(num/den, 4)
 
     def calc_Mechanical_Power(self, eletric_torque, step):
         """
@@ -244,9 +248,9 @@ class Proj_1():
         :param step: Step do for
         :return: O valor da Potência mecânica
         """
-        return (1-step)*(self.ws*pi/(60*eletric_torque))
+        return round((1-step)*eletric_torque*(self.ws*pi/60), 4)
 
-    def calc_Current_1(self, input_voltage, step, x12):
+    def calc_Current_1(self, input_voltage, step, x12): # Equacao correta
         """
         Calcula a Corrente 1 dada a tensão de entrada, o step do iterador, e x12.
         :param input_voltage: Tensão de entrada
@@ -257,19 +261,18 @@ class Proj_1():
         den = sqrt(
             (x12 ** 2) + ((self.r2/step) ** 2)
         )
-        return input_voltage/den
+        return round(input_voltage/den, 4)
 
-    def calc_Current_2(self, mech_power, step):
+    def calc_Current_2(self, mech_power, step): # igual na equacao
         """
         Calcula a Corrente 2 dada a Potência Mecânica e o step do iterador
         :param mech_power: A Potência Mecânica
         :param step: Step do for
         :return: O valor da Corrente 2
         """
-        num = mech_power*step
-        den = 3*self.r2*(1-step)
-
-        return sqrt(num/den)
+        return round(sqrt(
+            (mech_power*step)/(3*self.r2*(1-step))
+        ), 4)
 
     def calc_Tranferred_Power_from_AirGap(self, I2, step):
         """
@@ -278,7 +281,9 @@ class Proj_1():
         :param step: Step do for
         :return: O valor da Potência Transferida do entreferro
         """
-        return 3*(I2 ** 2)*(self.r2/step)
+        return round(
+            (3*(I2 ** 2)*(self.r2/step)), 4
+        )
 
     def calc_Rotor_Losses(self, Pg, step):
         """
@@ -296,7 +301,9 @@ class Proj_1():
         :param I1: A Corrente 1
         :return: O valor da Potência no Estator
         """
-        return 3*(I1 ** 2)*self.r1
+        return round(
+            (3*(I1 ** 2)*self.r1), 4
+        )
 
     def calc_Shaft_Power(self, Pg, Pr, step): # potencia no Eixo
         """
@@ -308,7 +315,9 @@ class Proj_1():
         :param step: Step do for
         :return: O valor da Potência no Eixo
         """
-        return (1-step)*Pg - Pr
+        return round(
+            (((1-step)*Pg) - Pr), 4
+        )
 
     def calc_Input_Power(self, Pg, Pest):
         """
@@ -349,7 +358,10 @@ class Proj_1():
         """
         den = input_power + rotor_loss + shaft_power
 
-        return input_power/den
+        print(f"Input Powwr: {input_power}, rotor_loss: {rotor_loss}, shaft_power: {shaft_power}")
+        print("")
+
+        return input_power/(input_power + rotor_loss + shaft_power)
 
 
 obj = Proj_1()
