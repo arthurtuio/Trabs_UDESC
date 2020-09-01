@@ -74,8 +74,6 @@ class Proj_1():
         self.Rend6 = []
         self.Rendp = []
 
-    #def get_values(self):
-
     def calculate(self):
         """
         Faz os cálculos.
