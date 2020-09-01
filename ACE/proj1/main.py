@@ -96,6 +96,7 @@ class Proj_1():
 
         # Inicializando os vetores
         array = arange(start=1, stop=0.00001, step=-0.001)
+
         i = 0
 
         for step in array:
@@ -117,17 +118,17 @@ class Proj_1():
             self.I16.append(self.calc_Current_1(self.Vf_6_step, step, Xm))
             self.I1p.append(self.calc_Current_1(self.Vf_PWM, step, Xm))
 
-            # Corrente 2
+            # Corrente 2 # aqui ta o erro
             self.I2.append(self.calc_Current_2(self.Pmec[i], step))
             self.I26.append(self.calc_Current_2(self.Pmec6[i], step))
             self.I2p.append(self.calc_Current_2(self.Pmecp[i], step))
 
-            # Potência Transferida do Entreferro
+            # Potência Transferida do Entreferro # ou aqui ta o erro
             self.Pg.append(self.calc_Tranferred_Power_across_AirGap(self.I2[i], step))
             self.Pg6.append(self.calc_Tranferred_Power_across_AirGap(self.I26[i], step))
             self.Pgp.append(self.calc_Tranferred_Power_across_AirGap(self.I2p[i], step))
 
-            # Perdas no Rotor
+            # Perdas no Rotor # ou aqui ta o erro
             self.Prot.append(self.calc_Rotor_Losses(self.Pg[i], step))
             self.Prot6.append(self.calc_Rotor_Losses(self.Pg6[i], step))
             self.Protp.append(self.calc_Rotor_Losses(self.Pgp[i], step))
@@ -202,6 +203,7 @@ class Proj_1():
 
         # Cos Phi
         plt.figure(5)
+        plt.plot(self.rpm, self.cos_phi, 'g', label='Normal')
         plt.plot(self.rpm, self.cos_phi6, 'r', label='Six-step')
         plt.plot(self.rpm, self.cos_phip, 'b', label='PWM')
         plt.xlabel("rpm")
@@ -260,9 +262,9 @@ class Proj_1():
         :param step: Step do for
         :return: O valor da Corrente 2
         """
-        num = sqrt((mech_power*step))
+        num = (mech_power*step)
         den = 3*self.rr*(1-step)
-        return round(num/den, 4)
+        return round(sqrt(num/den), 4)
 
     def calc_Tranferred_Power_across_AirGap(self, I2, step):
         """
